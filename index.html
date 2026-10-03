@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>どうぶつえんビンゴ - めざせ、全国制覇！！！</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦁</text></svg>">
   <meta property="og:type" content="website">
@@ -409,7 +409,7 @@
       border-radius: 12px;
       overflow: hidden;
       background: #fff;
-      touch-action: pan-y;
+      touch-action: manipulation;
     }
 
     .bingo-img {
@@ -625,6 +625,64 @@
       box-shadow: 0 6px 20px rgba(238, 82, 83, 0.5);
     }
 
+    /* 画像保存・プレビューモーダル用スタイル */
+    .save-modal-card {
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 24px 20px;
+    }
+
+    .save-hint-ios {
+      background: #eef9f6;
+      border: 1px solid #1dd1a1;
+      color: #0e8162;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    .preview-img-wrapper {
+      width: 100%;
+      max-height: 48vh;
+      overflow: auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+      background: #f1f2f6;
+      margin-bottom: 8px;
+    }
+
+    .saved-preview-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      -webkit-touch-callout: default !important;
+      user-select: auto !important;
+    }
+
+    .modal-share-btn {
+      background: linear-gradient(135deg, #10ac84, #1dd1a1);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(29, 209, 161, 0.4);
+      width: 100%;
+      max-width: 260px;
+      transition: all 0.2s;
+    }
+
+    .modal-share-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(29, 209, 161, 0.5);
+    }
+
     /* 紙吹雪Canvas */
     #confetti-canvas {
       position: fixed;
@@ -786,6 +844,26 @@
         </div>
       </div>
       <button class="modal-close-btn" onclick="closeModal()">続けてあそぶ</button>
+    </div>
+  </div>
+
+  <!-- 画像保存・プレビューモーダル -->
+  <div class="modal-backdrop" id="save-image-modal" onclick="closeSaveModalOnBackdrop(event)">
+    <div class="modal-card save-modal-card">
+      <div class="modal-icon">📸✨</div>
+      <h2 class="modal-title" style="font-size: 1.8rem;">ビンゴ画像が完成！</h2>
+      <p class="modal-message" style="margin-bottom: 8px;">マークした動物園ビンゴ画像です</p>
+      <div class="save-hint-ios" id="save-hint-text">
+        📱 <b>スマホの方：</b> 下の画像を<b>長押し</b>して「写真に追加」または「画像を保存」してください。<br>
+        下の「写真に保存 / シェア」ボタンからも保存できます！
+      </div>
+      <div class="preview-img-wrapper">
+        <img id="saved-preview-img" class="saved-preview-img" alt="マーク済みビンゴ画像" />
+      </div>
+      <div class="modal-btn-group" style="margin-top: 14px; gap: 8px;">
+        <button class="modal-share-btn" id="modal-share-btn" onclick="shareGeneratedImage()">📱 写真に保存 / シェア</button>
+        <button class="modal-close-btn" style="background: #a4b0be; box-shadow: none;" onclick="closeSaveModal()">閉じる</button>
+      </div>
     </div>
   </div>
 
@@ -1229,7 +1307,10 @@
     }
 
     window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeModal();
+      if (e.key === 'Escape') {
+        closeModal();
+        closeSaveModal();
+      }
     });
 
     function confirmReset() {
@@ -1265,56 +1346,131 @@
       }
     }
 
-    function saveAsImage() {
+    let currentGeneratedFile = null;
+    let currentGeneratedDataUrl = null;
+
+    function openSaveModal() {
+      document.getElementById('save-image-modal').classList.add('show');
+    }
+
+    function closeSaveModal() {
+      document.getElementById('save-image-modal').classList.remove('show');
+    }
+
+    function closeSaveModalOnBackdrop(e) {
+      if (e.target.id === 'save-image-modal') closeSaveModal();
+    }
+
+    async function shareGeneratedImage() {
+      if (currentGeneratedFile && navigator.canShare && navigator.canShare({ files: [currentGeneratedFile] })) {
+        try {
+          await navigator.share({
+            files: [currentGeneratedFile],
+            title: 'どうぶつえんビンゴ',
+            text: 'どうぶつえんビンゴのマーク結果です！'
+          });
+        } catch (e) {
+          if (e.name !== 'AbortError') console.warn(e);
+        }
+      } else {
+        alert('下の画像を長押しして「写真に追加」または「画像を保存」してください。');
+      }
+    }
+
+    async function saveAsImage() {
       const cfg = CONFIGS[currentLevel];
       const canvas = document.getElementById('export-canvas');
       const ctx = canvas.getContext('2d');
-      const img = new Image();
+      const boardImg = document.getElementById('bingo-img');
 
-      img.onload = () => {
-        canvas.width = cfg.origW;
-        canvas.height = cfg.origH;
+      canvas.width = cfg.origW;
+      canvas.height = cfg.origH;
 
-        ctx.drawImage(img, 0, 0, cfg.origW, cfg.origH);
-
+      // 描画処理関数
+      const drawMarks = () => {
         checkedCells.forEach(idx => {
           const col = idx % cfg.cols;
           const row = Math.floor(idx / cfg.cols);
-
           const cellCenterX = cfg.gridX + col * cfg.cellW + cfg.cellW / 2;
           const cellCenterY = cfg.gridY + row * cfg.cellH + cfg.cellH / 2;
           const radius = cfg.cellW * 0.38;
 
           ctx.save();
           ctx.translate(cellCenterX, cellCenterY);
-          
           const angle = (((idx * 17) % 25) - 12) * Math.PI / 180;
           ctx.rotate(angle);
-
           ctx.strokeStyle = 'rgba(231, 76, 60, 0.9)';
           ctx.lineWidth = cfg.cellW * 0.055;
           ctx.lineCap = 'round';
-
           ctx.beginPath();
           ctx.ellipse(0, 0, radius, radius * 1.03, 0, 0, Math.PI * 1.95);
           ctx.stroke();
-
           ctx.restore();
         });
-
-        try {
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-          const link = document.createElement('a');
-          link.download = `zoo_bingo_${currentLevel}_marked.jpg`;
-          link.href = dataUrl;
-          link.click();
-        } catch (err) {
-          alert('画像の保存に失敗しました。');
-          console.error(err);
-        }
       };
 
-      img.src = cfg.b64 || cfg.imgSrc;
+      const handleExport = () => {
+        try {
+          currentGeneratedDataUrl = canvas.toDataURL('image/jpeg', 0.92);
+          const previewImg = document.getElementById('saved-preview-img');
+          previewImg.src = currentGeneratedDataUrl;
+          openSaveModal();
+        } catch (e) {
+          console.warn('toDataURL error', e);
+        }
+
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+        canvas.toBlob(async (blob) => {
+          if (!blob) return;
+          const fileName = `zoo_bingo_${currentLevel}_marked.jpg`;
+          currentGeneratedFile = new File([blob], fileName, { type: 'image/jpeg' });
+
+          // Web Share API が使える場合は共有シートを試す（iPhone等）
+          if (navigator.canShare && navigator.canShare({ files: [currentGeneratedFile] })) {
+            try {
+              await navigator.share({
+                files: [currentGeneratedFile],
+                title: 'どうぶつえんビンゴ',
+                text: 'どうぶつえんビンゴのマーク結果です！'
+              });
+            } catch (err) {
+              if (err.name !== 'AbortError') console.warn('Share error', err);
+            }
+          } else if (!isIOS) {
+            // PCの場合は自動ダウンロード
+            try {
+              const link = document.createElement('a');
+              link.download = fileName;
+              link.href = currentGeneratedDataUrl;
+              link.click();
+            } catch (err) {}
+          }
+        }, 'image/jpeg', 0.92);
+      };
+
+      // 画面上の画像がロード済みなら即座に描画
+      if (boardImg.complete && boardImg.naturalWidth > 0) {
+        try {
+          ctx.drawImage(boardImg, 0, 0, cfg.origW, cfg.origH);
+          drawMarks();
+          await handleExport();
+          return;
+        } catch (e) {
+          console.warn('Direct draw failed, retrying with new Image', e);
+        }
+      }
+
+      // フォールバック
+      const tempImg = new Image();
+      tempImg.crossOrigin = 'anonymous';
+      tempImg.onload = async () => {
+        ctx.drawImage(tempImg, 0, 0, cfg.origW, cfg.origH);
+        drawMarks();
+        await handleExport();
+      };
+      tempImg.src = cfg.b64 || cfg.imgSrc;
     }
 
     // ============================================
