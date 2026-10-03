@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>どうぶつえんビンゴ - めざせ、全国制覇！！！</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦁</text></svg>">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="どうぶつえんビンゴ - めざせ、全国制覇！！！">
+  <meta property="og:description" content="行ったことのある動物園をタップしてビンゴ！初級編（7×7）と上級編（11×11）でめざせ全国制覇！">
+  <meta property="og:image" content="syokyuu.JPG">
+  <meta name="twitter:card" content="summary_large_image">
+  <style>
+    :root {
+      --primary: #ff6b6b;
+      --primary-dark: #ee5253;
+      --secondary: #1dd1a1;
+      --bg: #f8f4ea;
+      --card-bg: #ffffff;
+      --text: #2d3436;
+      --text-muted: #636e72;
+      --bingo-gold: #f39c12;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', 'Yu Gothic', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 8px 48px;
+    }
+
+    /* =========================================
+       スタート画面（コース選択）
+       ========================================= */
+    #start-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 760px;
+      min-height: 80vh;
+      padding: 24px 16px;
+      text-align: center;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .start-badge {
+      background: #ffeaa7;
+      color: #d35400;
+      font-weight: 800;
+      font-size: 0.9rem;
+      padding: 4px 16px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+      display: inline-block;
+      box-shadow: 0 2px 6px rgba(211, 84, 0, 0.15);
+    }
+
+    .start-title {
+      font-size: 2.1rem;
+      color: #b33939;
+      margin-bottom: 8px;
+      letter-spacing: 1.5px;
+      line-height: 1.3;
+      text-shadow: 2px 2px 0px rgba(255,255,255,0.8);
+    }
+
+    .start-subtitle {
+      font-size: 1.05rem;
+      color: #57606f;
+      margin-bottom: 32px;
+    }
+
+    .course-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      width: 100%;
+      margin-bottom: 28px;
+    }
+
+    .course-card {
+      background: white;
+      border-radius: 20px;
+      padding: 28px 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.07);
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .course-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 35px rgba(0,0,0,0.12);
+    }
+
+    .course-card.syokyuu {
+      border-color: #ff9ff3;
+    }
+    .course-card.syokyuu:hover {
+      border-color: #ff6b6b;
+    }
+
+    .course-card.joukyuu {
+      border-color: #feca57;
+    }
+    .course-card.joukyuu:hover {
+      border-color: #ff9f43;
+    }
+
+    .course-icon {
+      font-size: 3.5rem;
+      margin-bottom: 12px;
+      line-height: 1;
+    }
+
+    .course-name {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #2f3542;
+      margin-bottom: 6px;
+    }
+
+    .course-grid-size {
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      margin-bottom: 14px;
+    }
+
+    .syokyuu .course-grid-size {
+      background: #ffeae8;
+      color: #ee5253;
+    }
+
+    .joukyuu .course-grid-size {
+      background: #fff4d9;
+      color: #e67e22;
+    }
+
+    .course-desc {
+      font-size: 0.92rem;
+      color: #747d8c;
+      line-height: 1.5;
+      margin-bottom: 20px;
+      flex-grow: 1;
+    }
+
+    .course-status {
+      width: 100%;
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 8px;
+      font-size: 0.82rem;
+      color: #636e72;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-around;
+      font-weight: bold;
+    }
+
+    .course-status span b {
+      color: #e84118;
+    }
+
+    .course-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 25px;
+      border: none;
+      font-size: 1.05rem;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .syokyuu .course-btn {
+      background: linear-gradient(135deg, #ff7675, #ee5253);
+      box-shadow: 0 4px 12px rgba(238, 82, 83, 0.35);
+    }
+    .syokyuu .course-btn:hover {
+      box-shadow: 0 6px 16px rgba(238, 82, 83, 0.45);
+    }
+
+    .joukyuu .course-btn {
+      background: linear-gradient(135deg, #feca57, #ff9f43);
+      box-shadow: 0 4px 12px rgba(255, 159, 67, 0.35);
+    }
+    .joukyuu .course-btn:hover {
+      box-shadow: 0 6px 16px rgba(255, 159, 67, 0.45);
+    }
+
+
+    /* =========================================
+       ゲームプレイ画面
+       ========================================= */
+    #game-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 820px;
+      animation: fadeIn 0.35s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ゲームヘッダー */
+    .game-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 14px;
+      background: white;
+      border: 1px solid #dcdde1;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #57606f;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .back-btn:hover {
+      background: #f1f2f6;
+      border-color: #b2bec3;
+      transform: translateX(-2px);
+    }
+
+    .level-tabs {
+      display: inline-flex;
+      background: #eae2cf;
+      padding: 3px;
+      border-radius: 24px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    .tab-btn {
+      padding: 6px 16px;
+      border: none;
+      background: transparent;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: #7f6e52;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tab-btn.active {
+      background: #ee5253;
+      color: white;
+      box-shadow: 0 3px 8px rgba(238, 82, 83, 0.35);
+    }
+
+    /* コントロールバー（固定） */
+    .controls-container {
+      width: 100%;
+      position: sticky;
+      top: 8px;
+      z-index: 100;
+      margin-bottom: 12px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 8px 14px;
+      border-radius: 14px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .stats {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .stat-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #f1f2f6;
+      padding: 4px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .stat-badge.bingo-badge {
+      background: #fef3d6;
+      color: #b33939;
+      border: 1px solid #f9ca24;
+      animation: pulse-bingo 2.5s infinite;
+    }
+
+    @keyframes pulse-bingo {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+
+    .stat-badge .num {
+      font-size: 1.15rem;
+      color: #e84118;
+      font-weight: 800;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      border: 1px solid #dcdde1;
+      border-radius: 8px;
+      background: white;
+      color: #2f3542;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .btn:hover {
+      background: #f1f2f6;
+      border-color: #ced6e0;
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-reset {
+      color: #e84118;
+      border-color: #ffb8b8;
+    }
+    .btn-reset:hover {
+      background: #ffe8e8;
+    }
+
+    .btn-save {
+      background: #10ac84;
+      color: white;
+      border-color: #10ac84;
+    }
+    .btn-save:hover {
+      background: #0ea17a;
+    }
+
+    .btn-sound.muted {
+      color: #a4b0be;
+      background: #f1f2f6;
+    }
+
+    /* ビンゴボード */
+    .bingo-wrapper {
+      position: relative;
+      width: 100%;
+      box-shadow: 0 8px 30px rgba(71, 52, 28, 0.14);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+      touch-action: pan-y;
+    }
+
+    .bingo-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    /* グリッドオーバーレイ */
+    .grid-overlay {
+      position: absolute;
+      display: grid;
+      z-index: 10;
+    }
+
+    /* 各マス目セル */
+    .bingo-cell {
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.15s ease;
+      touch-action: manipulation;
+    }
+
+    .bingo-cell:hover {
+      background-color: rgba(255, 235, 59, 0.25);
+    }
+
+    .bingo-cell:active {
+      background-color: rgba(255, 215, 0, 0.35);
+    }
+
+    /* ビンゴ成立ラインのハイライト */
+    .bingo-cell.in-bingo {
+      animation: bingo-glow 1.6s ease-in-out infinite alternate;
+    }
+
+    @keyframes bingo-glow {
+      0% {
+        background-color: rgba(255, 215, 0, 0.28);
+        box-shadow: inset 0 0 8px rgba(255, 177, 0, 0.5);
+      }
+      100% {
+        background-color: rgba(255, 242, 0, 0.48);
+        box-shadow: inset 0 0 16px rgba(255, 121, 0, 0.85);
+      }
+    }
+
+    /* 赤〇スタンプ */
+    .circle-mark {
+      position: absolute;
+      width: 86%;
+      height: 86%;
+      pointer-events: none;
+      animation: stamp-pop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes stamp-pop {
+      0% {
+        transform: scale(0.2) rotate(var(--rot, 0deg));
+        opacity: 0;
+      }
+      70% {
+        transform: scale(1.12) rotate(var(--rot, 0deg));
+        opacity: 0.95;
+      }
+      100% {
+        transform: scale(1) rotate(var(--rot, 0deg));
+        opacity: 0.88;
+      }
+    }
+
+    /* ホバー時の園名表示バー */
+    .cell-info-bar {
+      margin-top: 8px;
+      font-size: 0.85rem;
+      color: #636e72;
+      min-height: 20px;
+      text-align: center;
+    }
+
+    /* ビンゴ達成モーダル */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.28s ease;
+      padding: 16px;
+    }
+
+    .modal-backdrop.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-card {
+      background: white;
+      border-radius: 24px;
+      padding: 28px 24px;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.35);
+      transform: scale(0.7) translateY(20px);
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .modal-backdrop.show .modal-card {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 8px;
+      background: linear-gradient(90deg, #ff7675, #ffd166, #55efc4, #74b9ff, #a29bfe);
+    }
+
+    .modal-icon {
+      font-size: 3.2rem;
+      line-height: 1;
+      margin-bottom: 8px;
+      animation: bounce 1s infinite alternate;
+    }
+
+    @keyframes bounce {
+      0% { transform: translateY(0) scale(1); }
+      100% { transform: translateY(-8px) scale(1.1); }
+    }
+
+    .modal-title {
+      font-size: 2.3rem;
+      font-weight: 900;
+      color: #e84118;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+      text-shadow: 2px 2px 0px #ffeaa7;
+    }
+
+    .modal-message {
+      font-size: 1.15rem;
+      font-weight: bold;
+      color: #2f3542;
+      margin-bottom: 12px;
+    }
+
+    .modal-subtext {
+      font-size: 0.9rem;
+      color: #747d8c;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .modal-stats {
+      background: #fdf6e2;
+      border: 2px dashed #f39c12;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-around;
+      font-weight: bold;
+    }
+
+    .modal-stat-item .label {
+      font-size: 0.78rem;
+      color: #7f8c8d;
+      margin-bottom: 2px;
+    }
+    .modal-stat-item .val {
+      font-size: 1.35rem;
+      color: #d35400;
+      font-weight: 800;
+    }
+
+    .modal-close-btn {
+      background: linear-gradient(135deg, #ff6b6b, #ee5253);
+      color: white;
+      border: none;
+      padding: 12px 32px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(238, 82, 83, 0.4);
+      transition: all 0.2s;
+      width: 100%;
+      max-width: 240px;
+    }
+
+    .modal-close-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(238, 82, 83, 0.5);
+    }
+
+    /* 紙吹雪Canvas */
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 2000;
+    }
+
+    /* フッター */
+    footer {
+      margin-top: 16px;
+      font-size: 0.82rem;
+      color: #888;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    /* 保存用非表示Canvas */
+    #export-canvas {
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 8px 4px 32px;
+      }
+      .start-title {
+        font-size: 1.6rem;
+      }
+      .controls {
+        padding: 6px 10px;
+      }
+      .stats {
+        gap: 6px;
+        font-size: 0.82rem;
+      }
+      .btn {
+        padding: 5px 8px;
+        font-size: 0.78rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =========================================
+       スタート画面（難易度選択）
+       ========================================= -->
+  <section id="start-screen">
+    <div class="start-badge">🦁 どうぶつえんビンゴ 🐘</div>
+    <h1 class="start-title">めざせ、動物園制覇！！！</h1>
+    <p class="start-subtitle">挑戦するコースを選んでスタートしてね！</p>
+
+    <div class="course-cards">
+      <!-- 初級編カード -->
+      <div class="course-card syokyuu" onclick="startCourse('syokyuu')">
+        <div class="course-icon">🐣</div>
+        <h2 class="course-name">初級編</h2>
+        <div class="course-grid-size">7 × 7 マス（全49園）</div>
+        <p class="course-desc">
+          全国各地の有名・人気の動物園が勢ぞろい！<br>
+          まずはここからチャレンジしよう！
+        </p>
+        <div class="course-status" id="start-status-syokyuu">
+          <span>達成: <b id="start-visited-syokyuu">0</b> / 49</span>
+          <span>BINGO: <b id="start-bingo-syokyuu">0</b> 列</span>
+        </div>
+        <button class="course-btn">初級編であそぶ ➔</button>
+      </div>
+
+      <!-- 上級編カード -->
+      <div class="course-card joukyuu" onclick="startCourse('joukyuu')">
+        <div class="course-icon">🦁</div>
+        <h2 class="course-name">上級編</h2>
+        <div class="course-grid-size">11 × 11 マス（全121園）</div>
+        <p class="course-desc">
+          北は北海道から南は沖縄まで大集結！<br>
+          全121園をめざす動物園マスターへ！
+        </p>
+        <div class="course-status" id="start-status-joukyuu">
+          <span>達成: <b id="start-visited-joukyuu">0</b> / 121</span>
+          <span>BINGO: <b id="start-bingo-joukyuu">0</b> 列</span>
+        </div>
+        <button class="course-btn">上級編であそぶ ➔</button>
+      </div>
+    </div>
+
+    <footer>
+      <p>行ったことのある動物園をクリックしてマークしよう！一列（縦・横・斜め）揃うとBINGO！</p>
+      <p>Presented by @shioramen8446l</p>
+    </footer>
+  </section>
+
+  <!-- =========================================
+       ゲームプレイ画面
+       ========================================= -->
+  <section id="game-screen">
+    <div class="game-header">
+      <button class="back-btn" onclick="goToStartScreen()">🏠 コース選択に戻る</button>
+      <div class="level-tabs">
+        <button class="tab-btn" id="tab-syokyuu" onclick="switchLevel('syokyuu')">初級編 (7×7)</button>
+        <button class="tab-btn" id="tab-joukyuu" onclick="switchLevel('joukyuu')">上級編 (11×11)</button>
+      </div>
+    </div>
+
+    <div class="controls-container">
+      <div class="controls">
+        <div class="stats">
+          <div class="stat-badge">
+            <span>行った動物園:</span>
+            <span class="num" id="stat-visited">0</span>
+            <span id="stat-total">/ 49</span>
+          </div>
+          <div class="stat-badge bingo-badge">
+            <span>BINGO:</span>
+            <span class="num" id="stat-bingo">0</span>
+            <span>列</span>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-sound" id="btn-sound" onclick="toggleSound()" title="効果音のON/OFF">🔊 音あり</button>
+          <button class="btn btn-save" onclick="saveAsImage()" title="マークした画像を保存">💾 画像保存</button>
+          <button class="btn btn-reset" onclick="confirmReset()" title="すべてのチェックを解除">🔄 リセット</button>
+        </div>
+      </div>
+    </div>
+
+    <main class="bingo-wrapper" id="bingo-wrapper">
+      <img id="bingo-img" class="bingo-img" src="syokyuu.JPG" alt="どうぶつえんビンゴ" />
+      <div class="grid-overlay" id="grid-overlay"></div>
+    </main>
+
+    <div class="cell-info-bar" id="cell-info-bar">マスをクリックすると赤〇が付きます</div>
+
+    <footer>
+      <p>行ったことのある動物園をクリックしてマークしよう！一列（縦・横・斜め）揃うとBINGO！</p>
+      <p>Presented by @shioramen8446l</p>
+    </footer>
+  </section>
+
+  <!-- ビンゴ達成モーダル -->
+  <div class="modal-backdrop" id="bingo-modal" onclick="closeModalOnBackdrop(event)">
+    <div class="modal-card">
+      <div class="modal-icon">🎉✨</div>
+      <h2 class="modal-title">BINGO !!</h2>
+      <div class="modal-message" id="modal-message">ビンゴ達成！おめでとうございます！</div>
+      <p class="modal-subtext">すごい！行ったことのある動物園が一列揃いました！</p>
+      <div class="modal-stats">
+        <div class="modal-stat-item">
+          <div class="label">現在のビンゴ</div>
+          <div class="val" id="modal-bingo-count">1 列</div>
+        </div>
+        <div class="modal-stat-item">
+          <div class="label">訪れた動物園</div>
+          <div class="val" id="modal-visited-count">7 園</div>
+        </div>
+      </div>
+      <button class="modal-close-btn" onclick="closeModal()">続けてあそぶ</button>
+    </div>
+  </div>
+
+  <!-- 紙吹雪用Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- 高解像度画像保存用Canvas -->
+  <canvas id="export-canvas"></canvas>
+
+  <!-- ローカル保存用Base64画像データ（存在すれば読み込み） -->
+  <script src="images_data.js"></script>
+
+  <script>
+    // 動物園データ（初級編 7x7: 49園）
+    const SYOKYUU_NAMES = [
+      "神戸どうぶつ王国", "いしかわ動物園", "東山動植物園", "とくしま動物園", "平川動物公園", "宇都宮動物園", "池田動物園",
+      "多摩動物公園", "大牟田市動物園", "円山動物園", "王子動物園", "那須どうぶつ王国", "長崎バイオパーク", "浜松市動物園",
+      "日本モンキーセンター", "上野動物園", "沖縄こどもの国", "周南市徳山動物園", "京都市動物園", "旭山動物園", "わんぱーくこうちアニマルランド",
+      "盛岡市動物公園 ZOOMO", "市原ぞうの国", "羽村市動物公園", "富山市ファミリーパーク", "福岡市動物園", "埼玉県こども動物自然公園", "ネオパークオキナワ",
+      "熊本市動植物園", "日立市かみね動物園", "天王寺動物園", "金沢動物園", "大森山動物園", "高知県立のいち動物公園", "アドベンチャーワールド",
+      "よこはま動物園ズーラシア", "安佐動物公園", "東武動物公園", "到津の森公園", "大島公園動物園", "のんほいパーク", "九十九島動植物園森きらら",
+      "八木山動物公園", "遊亀公園動物園", "愛媛県立とべ動物園", "茶臼山動物園", "宮崎市フェニックス自然動物園", "千葉市動物公園", "福山市立動物園"
+    ];
+
+    // 動物園データ（上級編 11x11: 121園）
+    const JOUKYUU_NAMES = [
+      "愛媛県立とべ動物園", "群馬サファリパーク", "のんほいパーク", "福山市立動物園", "足立区生物園", "熊本市動植物園", "姫路セントラルパーク", "おびひろ動物園", "霞ヶ浦どうぶつとみんなのいえ", "岩手サファリパーク", "海の中道海浜公園動物の森",
+      "よこはま動物園ズーラシア", "和歌山城公園動物園", "到津の森公園", "宇都宮動物園", "大牟田市動物園", "飯田市立動物園", "ときわ動物園", "伊豆アニマルキングダム", "淡路ファームパークイングランドの丘", "長崎鼻パーキングガーデン", "鞍ヶ池公園動物園",
+      "九州自然動物公園アフリカンサファリ", "草津熱帯圏", "智光山公園こども動物園", "大崎自然公園くじゃく園", "須坂市動物園", "河北町児童動物園", "上野動物園", "多摩動物公園", "旭山動物園", "京都市動物園", "鯖江市西山動物園",
+      "大森山動物園", "五月山動物園", "大島公園動物園", "城山動物園", "高知県立のいち動物公園", "大宮公園小動物園", "大町山岳博物館", "麻溝公園ふれあい動物広場", "富山市ファミリーパーク", "安佐動物公園", "沖縄こどもの国",
+      "松本市アルプス公園小鳥と小動物の森", "熱川バナナワニ園", "九十九島動植物園森きらら", "市川市動植物園", "秋吉台サファリパーク", "長岡市悠久山小動物園", "岡崎市東公園動物園", "王子動物園", "平川動物公園", "那須ワールドモンキーパーク", "弥生いこいの広場",
+      "姫路市立動物園", "円山動物園", "石川県森林公園森林動物園", "市原ぞうの国", "宮崎市フェニックス自然動物園", "大内山動物園", "長崎公園どうぶつひろば", "浜松市動物園", "龍野公園動物園", "茶臼山動物園", "夢見ヶ崎動物公園",
+      "江戸川区自然動物園", "やんばるクイナ生態展示学習施設 クイナの森", "上尾丸山公園小動物園", "天王寺動物園", "東山動植物園", "池田動物園", "金沢動物園", "東北サファリパーク", "東武動物公園", "町田リス園", "伊豆シャボテン動物公園",
+      "周南市徳山動物園", "小諸市動物園", "函館公園動物施設", "東筑波ユートピア", "とくしま動物園", "日本モンキーセンター", "阿蘇カドリー・ドミニオン", "那須どうぶつ王国", "掛川花鳥園", "千葉市動物公園", "別府ケーブルラクテンチ",
+      "福知山市動物園", "埼玉県こども動物自然公園", "遊亀公園附属動物園", "三島市楽寿園", "釧路市動物園", "日立市かみね動物園", "万力公園動物広場", "長崎バイオパーク", "井の頭自然文化園", "足羽山公園遊園地", "アドベンチャーワールド",
+      "久留米市鳥類センター", "しろとり動物園", "野毛山動物園", "桐生が岡動物園", "八木山動物公園", "神戸どうぶつ王国", "いしかわ動物園", "iZoo", "渋川動物公園", "日本平動物園", "キャンベルタウン野鳥の森",
+      "那須サファリパーク", "ネオパークオキナワ", "ごかつら池どうぶつパーク", "高岡古城公園動物園", "大崎公園こども動物園", "富士サファリパーク", "盛岡市動物公園 ZOOMO", "羽村市動物公園", "わんぱーくこうちアニマルランド", "松江フォーゲルパーク", "福岡市動物園"
+    ];
+
+    // グリッド設定
+    const CONFIGS = {
+      syokyuu: {
+        imgSrc: 'syokyuu.JPG',
+        b64: window.IMAGE_SYOKYUU_B64 || null,
+        cols: 7,
+        rows: 7,
+        total: 49,
+        names: SYOKYUU_NAMES,
+        origW: 1321,
+        origH: 1864,
+        gridX: 240,
+        gridY: 840,
+        cellW: 120,
+        cellH: 120,
+        topPct: (840 / 1864) * 100,
+        leftPct: (240 / 1321) * 100,
+        widthPct: (840 / 1321) * 100,
+        heightPct: (840 / 1864) * 100,
+        storageKey: 'zoo_bingo_syokyuu_state_v2'
+      },
+      joukyuu: {
+        imgSrc: 'joukyuu.JPG',
+        b64: window.IMAGE_JOUKYUU_B64 || null,
+        cols: 11,
+        rows: 11,
+        total: 121,
+        names: JOUKYUU_NAMES,
+        origW: 1527,
+        origH: 2164,
+        gridX: 103,
+        gridY: 720,
+        cellW: 120,
+        cellH: 120,
+        topPct: (720 / 2164) * 100,
+        leftPct: (103 / 1527) * 100,
+        widthPct: (1320 / 1527) * 100,
+        heightPct: (1320 / 2164) * 100,
+        storageKey: 'zoo_bingo_joukyuu_state_v2'
+      }
+    };
+
+    let currentLevel = 'syokyuu';
+    let checkedCells = new Set();
+    let prevBingoCount = 0;
+    let soundEnabled = true;
+
+    // 手書き風SVG赤丸スタンプ（SVG文字列生成）
+    function createStampSvg(rot) {
+      return `
+        <svg class="circle-mark" viewBox="0 0 100 100" style="--rot: ${rot}deg;">
+          <defs>
+            <filter id="glow-${rot}" x="-15%" y="-15%" width="130%" height="130%">
+              <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="rgba(214, 48, 49, 0.45)" />
+            </filter>
+          </defs>
+          <ellipse cx="50" cy="50" rx="38" ry="39" 
+            fill="none" 
+            stroke="#e74c3c" 
+            stroke-width="5.5" 
+            stroke-linecap="round" 
+            stroke-dasharray="235 15"
+            filter="url(#glow-${rot})"
+          />
+        </svg>
+      `;
+    }
+
+    // Web Audio API による効果音
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new AudioCtx();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+
+        if (type === 'check') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(450, now);
+          osc.frequency.exponentialRampToValueAtTime(750, now + 0.08);
+
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.1);
+        } else if (type === 'uncheck') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(600, now);
+          osc.frequency.exponentialRampToValueAtTime(300, now + 0.06);
+
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        } else if (type === 'bingo') {
+          const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+          notes.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            const noteStart = now + idx * 0.09;
+            const noteDuration = idx === notes.length - 1 ? 0.65 : 0.22;
+
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, noteStart);
+
+            gain.gain.setValueAtTime(0.28, noteStart);
+            gain.gain.exponentialRampToValueAtTime(0.001, noteStart + noteDuration);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(noteStart);
+            osc.stop(noteStart + noteDuration);
+          });
+        }
+      } catch (e) {
+        console.warn('Audio play failed', e);
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const btn = document.getElementById('btn-sound');
+      if (soundEnabled) {
+        btn.textContent = '🔊 音あり';
+        btn.classList.remove('muted');
+        playSound('check');
+      } else {
+        btn.textContent = '🔇 音なし';
+        btn.classList.add('muted');
+      }
+    }
+
+    // 画面遷移：コース選択からゲーム開始
+    function startCourse(level) {
+      playSound('check');
+      document.getElementById('start-screen').style.display = 'none';
+      document.getElementById('game-screen').style.display = 'flex';
+      switchLevel(level);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 画面遷移：ゲームからコース選択に戻る
+    function goToStartScreen() {
+      saveState();
+      document.getElementById('game-screen').style.display = 'none';
+      document.getElementById('start-screen').style.display = 'flex';
+      updateStartScreenStats();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // スタート画面のステータス更新
+    function updateStartScreenStats() {
+      ['syokyuu', 'joukyuu'].forEach(level => {
+        const cfg = CONFIGS[level];
+        let set = new Set();
+        try {
+          const saved = localStorage.getItem(cfg.storageKey);
+          if (saved) set = new Set(JSON.parse(saved));
+        } catch (e) {}
+
+        const bCount = getBingoCountForSet(set, cfg);
+        document.getElementById(`start-visited-${level}`).textContent = set.size;
+        document.getElementById(`start-bingo-${level}`).textContent = bCount;
+      });
+    }
+
+    function switchLevel(level) {
+      saveState();
+      currentLevel = level;
+
+      document.getElementById('tab-syokyuu').classList.toggle('active', level === 'syokyuu');
+      document.getElementById('tab-joukyuu').classList.toggle('active', level === 'joukyuu');
+
+      const cfg = CONFIGS[level];
+      document.getElementById('bingo-img').src = cfg.b64 || cfg.imgSrc;
+      document.getElementById('stat-total').textContent = `/ ${cfg.total}`;
+      document.getElementById('cell-info-bar').textContent = 'マスをクリックすると赤〇が付きます';
+
+      checkedCells.clear();
+      prevBingoCount = 0;
+      loadState();
+      renderBoard();
+      updateBingoStatus(false);
+    }
+
+    function renderBoard() {
+      const cfg = CONFIGS[currentLevel];
+      const overlay = document.getElementById('grid-overlay');
+      overlay.innerHTML = '';
+
+      overlay.style.top = `${cfg.topPct}%`;
+      overlay.style.left = `${cfg.leftPct}%`;
+      overlay.style.width = `${cfg.widthPct}%`;
+      overlay.style.height = `${cfg.heightPct}%`;
+      overlay.style.gridTemplateColumns = `repeat(${cfg.cols}, 1fr)`;
+      overlay.style.gridTemplateRows = `repeat(${cfg.rows}, 1fr)`;
+
+      const totalCells = cfg.cols * cfg.rows;
+      for (let i = 0; i < totalCells; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'bingo-cell';
+        cell.dataset.index = i;
+        
+        const zooName = cfg.names[i] || `動物園 ${i+1}`;
+        cell.title = zooName;
+
+        const rot = ((i * 17) % 25) - 12;
+        cell.dataset.rot = rot;
+
+        if (checkedCells.has(i)) {
+          cell.classList.add('checked');
+          cell.innerHTML = createStampSvg(rot);
+        }
+
+        cell.addEventListener('mouseenter', () => {
+          document.getElementById('cell-info-bar').textContent = `📍 ${zooName}`;
+        });
+
+        cell.addEventListener('mouseleave', () => {
+          document.getElementById('cell-info-bar').textContent = 'マスをクリックすると赤〇が付きます';
+        });
+
+        cell.addEventListener('click', () => onCellClick(i, cell, zooName));
+        overlay.appendChild(cell);
+      }
+
+      updateBingoStatus(false);
+    }
+
+    function onCellClick(idx, cell, zooName) {
+      if (checkedCells.has(idx)) {
+        checkedCells.delete(idx);
+        cell.classList.remove('checked');
+        cell.innerHTML = '';
+        playSound('uncheck');
+      } else {
+        checkedCells.add(idx);
+        cell.classList.add('checked');
+        const rot = cell.dataset.rot || 0;
+        cell.innerHTML = createStampSvg(rot);
+        playSound('check');
+      }
+
+      saveState();
+      updateBingoStatus(true);
+    }
+
+    function getBingoCountForSet(set, cfg) {
+      const cols = cfg.cols;
+      const rows = cfg.rows;
+      let count = 0;
+
+      // 行
+      for (let r = 0; r < rows; r++) {
+        let full = true;
+        for (let c = 0; c < cols; c++) {
+          if (!set.has(r * cols + c)) { full = false; break; }
+        }
+        if (full) count++;
+      }
+      // 列
+      for (let c = 0; c < cols; c++) {
+        let full = true;
+        for (let r = 0; r < rows; r++) {
+          if (!set.has(r * cols + c)) { full = false; break; }
+        }
+        if (full) count++;
+      }
+      // 対角線1
+      let d1 = true;
+      for (let i = 0; i < cols; i++) {
+        if (!set.has(i * cols + i)) { d1 = false; break; }
+      }
+      if (d1) count++;
+
+      // 対角線2
+      let d2 = true;
+      for (let i = 0; i < cols; i++) {
+        if (!set.has(i * cols + (cols - 1 - i))) { d2 = false; break; }
+      }
+      if (d2) count++;
+
+      return count;
+    }
+
+    function calculateBingo() {
+      const cfg = CONFIGS[currentLevel];
+      const cols = cfg.cols;
+      const rows = cfg.rows;
+
+      const bingoLines = [];
+      const winningCells = new Set();
+
+      // 行
+      for (let r = 0; r < rows; r++) {
+        const line = [];
+        for (let c = 0; c < cols; c++) line.push(r * cols + c);
+        if (line.every(idx => checkedCells.has(idx))) {
+          bingoLines.push({ type: 'row', index: r, cells: line });
+          line.forEach(idx => winningCells.add(idx));
+        }
+      }
+
+      // 列
+      for (let c = 0; c < cols; c++) {
+        const line = [];
+        for (let r = 0; r < rows; r++) line.push(r * cols + c);
+        if (line.every(idx => checkedCells.has(idx))) {
+          bingoLines.push({ type: 'col', index: c, cells: line });
+          line.forEach(idx => winningCells.add(idx));
+        }
+      }
+
+      // 対角線1
+      const diag1 = [];
+      for (let i = 0; i < cols; i++) diag1.push(i * cols + i);
+      if (diag1.every(idx => checkedCells.has(idx))) {
+        bingoLines.push({ type: 'diag1', cells: diag1 });
+        diag1.forEach(idx => winningCells.add(idx));
+      }
+
+      // 対角線2
+      const diag2 = [];
+      for (let i = 0; i < cols; i++) diag2.push(i * cols + (cols - 1 - i));
+      if (diag2.every(idx => checkedCells.has(idx))) {
+        bingoLines.push({ type: 'diag2', cells: diag2 });
+        diag2.forEach(idx => winningCells.add(idx));
+      }
+
+      return {
+        count: bingoLines.length,
+        lines: bingoLines,
+        winningCells: winningCells
+      };
+    }
+
+    function updateBingoStatus(triggerModal = true) {
+      const { count, winningCells } = calculateBingo();
+
+      document.getElementById('stat-visited').textContent = checkedCells.size;
+      document.getElementById('stat-bingo').textContent = count;
+
+      const cells = document.querySelectorAll('.bingo-cell');
+      cells.forEach(cell => {
+        const idx = parseInt(cell.dataset.index, 10);
+        cell.classList.toggle('in-bingo', winningCells.has(idx));
+      });
+
+      if (triggerModal && count > prevBingoCount) {
+        showBingoModal(count);
+      }
+
+      prevBingoCount = count;
+    }
+
+    function showBingoModal(count) {
+      playSound('bingo');
+      startConfetti();
+
+      const modal = document.getElementById('bingo-modal');
+      const msg = document.getElementById('modal-message');
+      const bingoCountEl = document.getElementById('modal-bingo-count');
+      const visitedCountEl = document.getElementById('modal-visited-count');
+
+      msg.textContent = `${count} 列ビンゴ達成！おめでとうございます！`;
+      bingoCountEl.textContent = `${count} 列`;
+      visitedCountEl.textContent = `${checkedCells.size} 園`;
+
+      modal.classList.add('show');
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('bingo-modal');
+      modal.classList.remove('show');
+      stopConfetti();
+    }
+
+    function closeModalOnBackdrop(e) {
+      if (e.target.id === 'bingo-modal') closeModal();
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    function confirmReset() {
+      if (checkedCells.size === 0) return;
+      if (confirm('チェックをすべてクリアしますか？')) {
+        checkedCells.clear();
+        prevBingoCount = 0;
+        saveState();
+        renderBoard();
+        playSound('uncheck');
+      }
+    }
+
+    function saveState() {
+      const cfg = CONFIGS[currentLevel];
+      try {
+        localStorage.setItem(cfg.storageKey, JSON.stringify([...checkedCells]));
+      } catch (e) {
+        console.warn('Storage save failed', e);
+      }
+    }
+
+    function loadState() {
+      const cfg = CONFIGS[currentLevel];
+      try {
+        const saved = localStorage.getItem(cfg.storageKey);
+        if (saved) {
+          const arr = JSON.parse(saved);
+          checkedCells = new Set(arr);
+        }
+      } catch (e) {
+        console.warn('Storage load failed', e);
+      }
+    }
+
+    function saveAsImage() {
+      const cfg = CONFIGS[currentLevel];
+      const canvas = document.getElementById('export-canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+
+      img.onload = () => {
+        canvas.width = cfg.origW;
+        canvas.height = cfg.origH;
+
+        ctx.drawImage(img, 0, 0, cfg.origW, cfg.origH);
+
+        checkedCells.forEach(idx => {
+          const col = idx % cfg.cols;
+          const row = Math.floor(idx / cfg.cols);
+
+          const cellCenterX = cfg.gridX + col * cfg.cellW + cfg.cellW / 2;
+          const cellCenterY = cfg.gridY + row * cfg.cellH + cfg.cellH / 2;
+          const radius = cfg.cellW * 0.38;
+
+          ctx.save();
+          ctx.translate(cellCenterX, cellCenterY);
+          
+          const angle = (((idx * 17) % 25) - 12) * Math.PI / 180;
+          ctx.rotate(angle);
+
+          ctx.strokeStyle = 'rgba(231, 76, 60, 0.9)';
+          ctx.lineWidth = cfg.cellW * 0.055;
+          ctx.lineCap = 'round';
+
+          ctx.beginPath();
+          ctx.ellipse(0, 0, radius, radius * 1.03, 0, 0, Math.PI * 1.95);
+          ctx.stroke();
+
+          ctx.restore();
+        });
+
+        try {
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+          const link = document.createElement('a');
+          link.download = `zoo_bingo_${currentLevel}_marked.jpg`;
+          link.href = dataUrl;
+          link.click();
+        } catch (err) {
+          alert('画像の保存に失敗しました。');
+          console.error(err);
+        }
+      };
+
+      img.src = cfg.b64 || cfg.imgSrc;
+    }
+
+    // ============================================
+    // 紙吹雪 (Confetti)
+    // ============================================
+    const confettiCanvas = document.getElementById('confetti-canvas');
+    const confettiCtx = confettiCanvas.getContext('2d');
+    let confettiParticles = [];
+    let confettiAnimationId = null;
+
+    function resizeConfetti() {
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeConfetti);
+    resizeConfetti();
+
+    function startConfetti() {
+      resizeConfetti();
+      confettiParticles = [];
+      const colors = ['#ff7675', '#74b9ff', '#55efc4', '#ffeaa7', '#a29bfe', '#fd79a8'];
+
+      for (let i = 0; i < 130; i++) {
+        confettiParticles.push({
+          x: Math.random() * confettiCanvas.width,
+          y: Math.random() * -confettiCanvas.height * 0.5,
+          w: Math.random() * 10 + 6,
+          h: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          vx: (Math.random() - 0.5) * 4,
+          vy: Math.random() * 3 + 2.5,
+          rot: Math.random() * 360,
+          rotSpeed: (Math.random() - 0.5) * 8
+        });
+      }
+
+      if (!confettiAnimationId) {
+        animateConfetti();
+      }
+    }
+
+    function animateConfetti() {
+      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      let activeCount = 0;
+
+      confettiParticles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.rotSpeed;
+
+        if (p.y < confettiCanvas.height) {
+          activeCount++;
+          confettiCtx.save();
+          confettiCtx.translate(p.x, p.y);
+          confettiCtx.rotate((p.rot * Math.PI) / 180);
+          confettiCtx.fillStyle = p.color;
+          confettiCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          confettiCtx.restore();
+        }
+      });
+
+      if (activeCount > 0) {
+        confettiAnimationId = requestAnimationFrame(animateConfetti);
+      } else {
+        stopConfetti();
+      }
+    }
+
+    function stopConfetti() {
+      if (confettiAnimationId) {
+        cancelAnimationFrame(confettiAnimationId);
+        confettiAnimationId = null;
+      }
+      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      confettiParticles = [];
+    }
+
+    // 初期化：スタート画面の統計を表示
+    updateStartScreenStats();
+  </script>
+</body>
+</html>
